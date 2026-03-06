@@ -1,0 +1,178 @@
+{
+    "houses": [
+        {
+            "id": "modern-villa",
+            "name": "Modern Villa",
+            "description": "4-bedroom luxury smart villa with full automation.",
+            "image": "images/house-villa.png",
+            "deviceCount": 16,
+            "rooms": [
+                {
+                    "id": "living-room",
+                    "name": "Living Room",
+                    "devices": [
+                        {
+                            "id": "tv-1",
+                            "name": "NiuBi+ Smart TV 85\"",
+                            "type": "tv",
+                            "status": "on",
+                            "icon": "ph-television",
+                            "value": 100,
+                            "metric": "Vol"
+                        },
+                        {
+                            "id": "ac-1",
+                            "name": "Climate Control",
+                            "type": "ac",
+                            "status": "on",
+                            "icon": "ph-thermometer",
+                            "value": 22,
+                            "metric": "°C"
+                        },
+                        {
+                            "id": "light-1",
+                            "name": "Ambient Lighting",
+                            "type": "light",
+                            "status": "off",
+                            "icon": "ph-lightbulb",
+                            "value": 0,
+                            "metric": "%"
+                        },
+                        {
+                            "id": "speaker-1",
+                            "name": "Surround Sound",
+                            "type": "speaker",
+                            "status": "on",
+                            "icon": "ph-speaker-hifi",
+                            "value": 45,
+                            "metric": "Vol"
+                        }
+                    ]
+                },
+                {
+                    "id": "kitchen",
+                    "name": "Kitchen Base",
+                    "devices": [
+                        {
+                            "id": "fridge-1",
+                            "name": "Smart Refrigerator",
+                            "type": "appliance",
+                            "status": "on",
+                            "icon": "ph-snowflake",
+                            "value": 4,
+                            "metric": "°C"
+                        },
+                        {
+                            "id": "oven-1",
+                            "name": "Smart Oven",
+                            "type": "appliance",
+                            "status": "off",
+                            "icon": "ph-fire",
+                            "value": 0,
+                            "metric": "°C"
+                        },
+                        {
+                            "id": "light-2",
+                            "name": "Overhead Lights",
+                            "type": "light",
+                            "status": "on",
+                            "icon": "ph-lightbulb",
+                            "value": 80,
+                            "metric": "%"
+                        }
+                    ]
+                },
+                {
+                    "id": "bedroom-master",
+                    "name": "Master Bedroom",
+                    "devices": [
+                        {
+                            "id": "ac-2",
+                            "name": "Climate Control",
+                            "type": "ac",
+                            "status": "on",
+                            "icon": "ph-thermometer",
+                            "value": 20,
+                            "metric": "°C"
+                        },
+                        {
+                            "id": "curtain-1",
+                            "name": "Smart Curtains",
+                            "type": "curtain",
+                            "status": "off",
+                            "icon": "ph-blinds",
+                            "value": 0,
+                            "metric": "%"
+                        },
+                        {
+                            "id": "light-3",
+                            "name": "Bedside Lamps",
+                            "type": "light",
+                            "status": "on",
+                            "icon": "ph-lamp",
+                            "value": 30,
+                            "metric": "%"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "urban-loft",
+            "name": "Urban Loft",
+            "description": "High-rise premium apartment with integrated city systems.",
+            "image": "images/house-loft.png",
+            "deviceCount": 8,
+            "rooms": [
+                {
+                    "id": "studio-living",
+                    "name": "Studio Living",
+                    "devices": [
+                        {
+                            "id": "tv-2",
+                            "name": "NiuBi+ OLED TV",
+                            "type": "tv",
+                            "status": "off",
+                            "icon": "ph-television",
+                            "value": 0,
+                            "metric": "Vol"
+                        },
+                        {
+                            "id": "light-4",
+                            "name": "Track Lighting",
+                            "type": "light",
+                            "status": "on",
+                            "icon": "ph-lightbulb",
+                            "value": 60,
+                            "metric": "%"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "cozy-cottage",
+            "name": "Cozy Cottage",
+            "description": "Smart lakeside retreat blending nature with tech.",
+            "image": "images/house-cottage.png",
+            "deviceCount": 12,
+            "rooms": [
+                {
+                    "id": "den",
+                    "name": "The Den",
+                    "devices": [
+                        {
+                            "id": "thermostat-1",
+                            "name": "Smart Thermostat",
+                            "type": "ac",
+                            "status": "on",
+                            "icon": "ph-thermometer",
+                            "value": 24,
+                            "metric": "°C"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

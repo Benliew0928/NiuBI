@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NiuBi+ | House Dashboard</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="dashboard-body">
+
+    <!-- HEADER SMALL (APP LIKE) -->
+    <header class="app-header">
+        <div class="app-header-inner">
+            <a href="index.html" class="logo logo-small">NiuBi<span>+</span></a>
+            <h2 id="dh-house-title" class="dh-title">Loading...</h2>
+            <div class="header-icons">
+                <a href="index.html" class="icon-btn" aria-label="Exit"><i class="ph ph-sign-out"></i></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="dh-sidebar">
+            <div class="dh-sidebar-header">
+                <h3>Rooms</h3>
+            </div>
+            <ul class="room-list" id="room-list">
+                <!-- Loaded dynamically -->
+            </ul>
+        </aside>
+
+        <!-- MAIN ROOM VIEW -->
+        <section class="dh-main" id="dh-main">
+            <div class="room-view-container">
+                <div class="scene-controls">
+                    <button class="scene-btn" id="btn-rotate-left" title="Rotate Left"><i
+                            class="ph ph-arrow-counter-clockwise"></i></button>
+                    <button class="scene-btn" id="btn-rotate-right" title="Rotate Right"><i
+                            class="ph ph-arrow-clockwise"></i></button>
+                    <div class="scene-btn-divider"></div>
+                    <button class="scene-btn" id="btn-zoom-in" title="Zoom In"><i class="ph ph-plus"></i></button>
+                    <button class="scene-btn" id="btn-zoom-out" title="Zoom Out"><i class="ph ph-minus"></i></button>
+                </div>
+                <div class="room-scene" id="room-scene">
+                    <div class="room-floor" id="room-floor">
+                        <!-- Devices rendered here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT SIDEBAR (DEVICE CONTROLS) -->
+        <aside class="dh-panel" id="dh-panel">
+            <div class="panel-empty" id="panel-empty">
+                <i class="ph ph-hand-tap"></i>
+                <p>Select a device to control</p>
+            </div>
+            <div class="panel-content" id="panel-content" style="display:none;">
+                <div class="panel-header">
+                    <div class="panel-icon"><i id="panel-device-icon" class="ph ph-plug"></i></div>
+                    <div class="panel-titles">
+                        <h3 id="panel-device-name">Device Name</h3>
+                        <span id="panel-device-status" class="status-badge">Off</span>
+                    </div>
+                </div>
+
+                <div class="panel-controls">
+                    <div class="control-group">
+                        <label>Power</label>
+                        <label class="switch">
+                            <input type="checkbox" id="device-power-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="control-group" id="value-control-group" style="display:none;">
+                        <label id="value-label">Intensity</label>
+                        <div class="range-wrapper">
+                            <input type="range" id="device-value-slider" min="0" max="100" value="0">
+                            <span id="device-value-display">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script src="js/smarthome.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

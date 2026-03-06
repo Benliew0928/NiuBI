@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NiuBi+ | About</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        .about-image {
+            margin-bottom: 40px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            height: 400px;
+        }
+
+        .about-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .about-text h2 {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--color-accent);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">NiuBi<span>+</span></a>
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">My Homes</a>
+                <a href="about.html" class="nav-link active">About NiuBi+</a>
+                <a href="contact.html" class="nav-link">Support</a>
+            </nav>
+            <div class="header-icons">
+                <button class="icon-btn mobile-menu-btn" aria-label="Menu"><i class="ph ph-list"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MOBILE DRAWER -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+    <nav class="mobile-drawer" id="mobile-drawer">
+        <div class="mobile-drawer-header">
+            <a href="index.html" class="logo">NiuBi<span>+</span></a>
+            <button class="mobile-drawer-close" id="mobile-close"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="mobile-nav-links">
+            <a href="index.html">My Homes</a>
+            <a href="about.html">About NiuBi+</a>
+            <a href="contact.html">Support</a>
+        </div>
+    </nav>
+
+    <main>
+        <section style="padding: 120px 0 60px; background: var(--color-bg-secondary);">
+            <div class="container text-center">
+                <h1 style="margin-bottom:16px;">About NiuBi+</h1>
+                <p class="text-muted" style="font-size:1.1rem; max-width:600px; margin:0 auto;">Our vision for the
+                    future of connected living.</p>
+            </div>
+        </section>
+
+        <section class="container about-content">
+            <div class="about-image">
+                <img src="images/house-villa.png" alt="Smart Home Automation Vision">
+            </div>
+
+            <div class="about-text">
+                <h2>The NiuBi+ Vision</h2>
+                <p>NiuBi+ was born from a simple idea: technology should feel invisible, yet profoundly impactful. We
+                    believe that a home is more than structure and furniture; it's a living environment that should
+                    adapt to you, predict your needs, and secure your peace of mind.</p>
+
+                <h2>Cloud Assignment Architecture</h2>
+                <p>This Smart Home Hub demonstration is powered by resilient AWS cloud infrastructure to handle millions
+                    of theoretical concurrent IoT connections:</p>
+                <ul>
+                    <li><strong>Edge Delivery:</strong> AWS CloudFront ensures that the dashboard UI is delivered with
+                        sub-second latency worldwide.</li>
+                    <li><strong>Cloud Compute:</strong> Amazon EC2 hosts our core ingestion APIs and web servers.</li>
+                    <li><strong>Object Storage:</strong> Amazon S3 reliably serving all our rich graphical and media
+                        assets.</li>
+                    <li><strong>Data Persistence:</strong> Amazon RDS holds complex device relationship matrices and
+                        historical telemetry securely.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo">NiuBi<span>+</span></a>
+                    <p class="footer-desc">Curating elegance for the modern smart home. Intuitive living powered by
+                        NiuBi.</p>
+                </div>
+                <div class="footer-links-group">
+                    <h4 class="footer-title">Platform</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">My Homes</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 NiuBi+. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
