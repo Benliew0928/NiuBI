@@ -656,27 +656,10 @@ main {
     transform-style: preserve-3d;
     cursor: pointer;
     z-index: 10;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s;
 }
 
-.device-node .sub-cube {
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.device-node:hover {
-    z-index: 20;
-}
-
-/* Make it jump up a little bit on hover by targeting the direct children sub-cubes */
-.device-node:hover .sub-cube,
-.device-node:hover .lamp-floor-base {
-    transform: translateZ(10px) !important;
-}
-
-.device-node.selected .sub-cube,
-.device-node.selected .lamp-floor-base {
-    transform: translateZ(10px) !important;
-}
-
+.device-node:hover,
 .device-node.selected {
     z-index: 20;
 }
@@ -696,6 +679,27 @@ main {
 
 .device-generic {
     transform: translate3d(calc(var(--x)*1px), calc(var(--y)*1px), 0px);
+}
+
+/* Hover & Selected positioning (Pop-up smoothly) */
+.device-tv:hover,
+.device-tv.selected {
+    transform: translate3d(calc(var(--x)*1px), calc(var(--y)*1px), 15px);
+}
+
+.device-ac:hover,
+.device-ac.selected {
+    transform: translate3d(calc(var(--x)*1px), calc(var(--y)*1px), 115px);
+}
+
+.device-lamp:hover,
+.device-lamp.selected {
+    transform: translate3d(calc(var(--x)*1px), calc(var(--y)*1px), 15px);
+}
+
+.device-generic:hover,
+.device-generic.selected {
+    transform: translate3d(calc(var(--x)*1px), calc(var(--y)*1px), 15px);
 }
 
 
@@ -747,6 +751,29 @@ main {
     height: calc(var(--ch)*1px);
     transform-origin: top left;
     transform: translateX(calc(var(--cw)*1px)) rotateZ(90deg) rotateX(90deg);
+}
+
+/* Bottom (Floor) */
+.face-bottom {
+    width: calc(var(--cw)*1px);
+    height: calc(var(--cd)*1px);
+    transform: translateZ(0);
+}
+
+/* Back Wall */
+.face-back {
+    width: calc(var(--cw)*1px);
+    height: calc(var(--ch)*1px);
+    transform-origin: top left;
+    transform: rotateX(90deg);
+}
+
+/* Left Wall */
+.face-left {
+    width: calc(var(--cd)*1px);
+    height: calc(var(--ch)*1px);
+    transform-origin: top left;
+    transform: rotateZ(90deg) rotateX(90deg);
 }
 
 
@@ -896,10 +923,6 @@ main {
     background: #fef08a !important;
     border-color: #eab308;
     box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);
-}
-
-.device-lamp.on .cube-lamp-shade {
-    filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.5));
 }
 
 /* --- GENERIC --- */
