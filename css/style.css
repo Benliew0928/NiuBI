@@ -794,6 +794,10 @@ main {
     transform: translate3d(calc(var(--x)*1px), calc(var(--y)*1px), 0px);
 }
 
+.device-speaker {
+    transform: translate3d(calc(var(--x)*1px), calc(var(--y)*1px), 0px);
+}
+
 /* Hover & Selected positioning (Pop-up smoothly) */
 .device-tv:hover,
 .device-tv.selected {
@@ -815,6 +819,25 @@ main {
     transform: translate3d(calc(var(--x)*1px), calc(var(--y)*1px), 15px);
 }
 
+.device-speaker:hover,
+.device-speaker.selected {
+    transform: translate3d(calc(var(--x)*1px), calc(var(--y)*1px), 15px);
+}
+
+/* Collision State */
+.device-node.collision-error .sub-cube .face {
+    background: #fecaca !important;
+    /* light red */
+    border-color: #ef4444 !important;
+    /* solid red */
+    box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.4) !important;
+}
+
+.device-node.collision-error .device-label {
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+    border-color: #f87171 !important;
+}
 
 /* ===== CUBE GEOMETRY ENGINE ===== */
 .sub-cube {
@@ -1463,7 +1486,8 @@ textarea.form-control {
 @media (max-width: 992px) {
     .dashboard-layout {
         flex-direction: column;
-        overflow: visible;
+        /* Keep overflow hidden to prevent 100vh scrolling issues */
+        height: calc(100dvh - 70px);
     }
 
     .dh-sidebar {
@@ -1471,9 +1495,10 @@ textarea.form-control {
         border-right: none;
         border-bottom: 1px solid var(--color-border);
         height: auto;
-        max-height: 200px;
-        overflow-x: auto;
+        padding: 5px 15px;
         flex-direction: row;
+        overflow-x: auto;
+        white-space: nowrap;
     }
 
     .room-list {
@@ -1487,7 +1512,8 @@ textarea.form-control {
     .room-item {
         border-left: none;
         border-bottom: 3px solid transparent;
-        white-space: nowrap;
+        margin-right: 15px;
+        padding: 10px 5px;
     }
 
     .room-item.active {
@@ -1496,18 +1522,18 @@ textarea.form-control {
     }
 
     .dh-main {
-        height: 60vh;
+        flex: 1;
+        /* Natively fill all remaining center space! No hardcoded heights */
+        height: auto;
     }
 
     .dh-panel {
         width: 100%;
         border-left: none;
         border-top: 1px solid var(--color-border);
-        flex: 1;
-    }
-
-    .room-view-container {
-        transform: scale(0.6);
+        padding: 10px;
+        height: auto;
+        /* Make it an intrinsic compact bottom drawer */
     }
 
     .contact-grid {
@@ -1532,6 +1558,100 @@ textarea.form-control {
 
     .footer-grid {
         grid-template-columns: 1fr;
+    }
+
+    /* 3D Scene scaling wrapper (handled primarily by JS zoom now, but safe default) */
+    .room-view-container {
+        transform: none;
+        /* Let JS handle the direct scaling via zoomLevel! */
+    }
+
+    /* Move scene controls to the top away from toolbar */
+    .scene-controls {
+        top: 20px;
+        bottom: auto;
+    }
+
+    /* Compact Toolbar overlaying the bottom 3D view */
+    .device-toolbar {
+        width: 90%;
+        bottom: 10px;
+        padding: 6px 12px;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .toolbar-items {
+        flex-wrap: nowrap;
+        gap: 6px;
+    }
+
+    .toolbar-title {
+        margin-right: 10px;
+        display: none;
+        /* Hide text to save space */
+    }
+
+    .tool-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1.2rem;
+    }
+
+    /* Extremely compact control panel */
+    .panel-header {
+        margin-bottom: 5px;
+    }
+
+    .panel-titles h3 {
+        font-size: 1rem;
+    }
+
+    .panel-controls {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .control-group {
+        margin-bottom: 0;
+        flex: 1;
+        min-width: 100px;
+        padding: 8px 12px;
+    }
+
+    #action-control-group {
+        flex: 100%;
+        padding: 0;
+    }
+
+    .device-actions {
+        flex-direction: row;
+    }
+
+    .action-btn {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dh-sidebar {
+        padding: 2px 10px;
+    }
+
+    .room-item {
+        padding: 6px 2px;
+        font-size: 0.85rem;
+    }
+
+    .panel-empty {
+        padding: 10px;
+    }
+
+    .panel-empty p {
+        font-size: 0.9rem;
     }
 }
 

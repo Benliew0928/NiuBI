@@ -25,7 +25,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pValueDisplay = document.getElementById('device-value-display');
 
     // ===== Scene Rotation & Zoom with Long-Press =====
-    let rotZ = 45, rotX = 60, zoom = 1;
+    let rotZ = 45, rotX = 60;
+    let zoom = window.innerWidth <= 480 ? 0.45 : (window.innerWidth <= 768 ? 0.6 : 1);
 
     function applyScene() {
         roomSceneEl.style.transform = `rotateX(${rotX}deg) rotateZ(${rotZ}deg) scale3d(${zoom},${zoom},${zoom})`;
@@ -155,13 +156,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             newX = Math.max(0, Math.min(newX, (room.floorWidth || 420) - 60));
             newY = Math.max(0, Math.min(newY, (room.floorDepth || 420) - 60));
 
-            d.pos.x = newX;
-            d.pos.y = newY;
+            // Collision Detection processing
+            let collision = false;
+            room.devices.forEach(otherDev => {
+                if (otherDev.id === draggingDeviceId) return;
+                const ox = otherDev.pos.x, oy = otherDev.pos.y;
+                if (Math.abs(newX - ox) < 45 && Math.abs(newY - oy) < 45) {
+                    collision = true;
+                }
+            });
 
             const node = document.querySelector(`.device-node[data-id="${draggingDeviceId}"]`);
             if (node) {
-                node.style.setProperty('--x', newX);
-                node.style.setProperty('--y', newY);
+                if (collision) {
+                    node.classList.add('collision-error');
+                    // Do not update real position, just visual
+                    node.style.setProperty('--x', newX);
+                    node.style.setProperty('--y', newY);
+                } else {
+                    node.classList.remove('collision-error');
+                    d.pos.x = newX;
+                    d.pos.y = newY;
+                    node.style.setProperty('--x', newX);
+                    node.style.setProperty('--y', newY);
+                }
             }
         }
     });
@@ -173,6 +191,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderRoomView();
         }
         if (draggingDeviceId) {
+            const node = document.querySelector(`.device-node[data-id="${draggingDeviceId}"]`);
+            if (node && node.classList.contains('collision-error')) {
+                // Revert visual overlapping position back to last known good saved position
+                const room = house.rooms.find(r => r.id === currentRoomId);
+                const d = room.devices.find(dev => dev.id === draggingDeviceId);
+                node.style.setProperty('--x', d.pos.x);
+                node.style.setProperty('--y', d.pos.y);
+                node.classList.remove('collision-error');
+            }
             draggingDeviceId = null;
             document.body.style.cursor = '';
         }
