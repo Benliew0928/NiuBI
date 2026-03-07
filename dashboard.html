@@ -48,7 +48,21 @@
                 </div>
                 <div class="room-scene" id="room-scene">
                     <div class="room-floor" id="room-floor">
+                        <!-- Resize handles -->
+                        <div class="resize-handle resize-x" id="resize-x" title="Drag to resize floor width"></div>
+                        <div class="resize-handle resize-y" id="resize-y" title="Drag to resize floor depth"></div>
                         <!-- Devices rendered here -->
+                    </div>
+                </div>
+                <div class="device-toolbar">
+                    <div class="toolbar-title">Add Smart Device</div>
+                    <div class="toolbar-items">
+                        <button class="tool-btn" data-type="tv" title="Add TV"><i class="ph ph-desktop"></i></button>
+                        <button class="tool-btn" data-type="ac" title="Add AC"><i class="ph ph-wind"></i></button>
+                        <button class="tool-btn" data-type="light" title="Add Lamp"><i
+                                class="ph ph-lightbulb"></i></button>
+                        <button class="tool-btn" data-type="speaker" title="Add Speaker"><i
+                                class="ph ph-speaker-high"></i></button>
                     </div>
                 </div>
             </div>
@@ -83,6 +97,16 @@
                         <div class="range-wrapper">
                             <input type="range" id="device-value-slider" min="0" max="100" value="0">
                             <span id="device-value-display">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="action-control-group">
+                        <label>Actions</label>
+                        <div class="device-actions">
+                            <button id="btn-device-rotate" class="action-btn"><i class="ph ph-arrows-clockwise"></i>
+                                Rotate 90°</button>
+                            <button id="btn-device-delete" class="action-btn danger"><i class="ph ph-trash"></i>
+                                Remove</button>
                         </div>
                     </div>
                 </div>

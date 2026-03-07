@@ -601,9 +601,122 @@ main {
     margin: 0 2px;
 }
 
+/* Device Spawner Toolbar */
+.device-toolbar {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    padding: 12px 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 100;
+}
+
+.toolbar-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+
+.toolbar-items {
+    display: flex;
+    gap: 12px;
+}
+
+.tool-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tool-btn:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-accent);
+    transform: translateY(-2px);
+    border-color: rgba(0, 212, 170, 0.3);
+}
+
+.tool-btn:active {
+    transform: translateY(0) scale(0.95);
+}
+
+/* Floor Resize Handles */
+.resize-handle {
+    position: absolute;
+    background: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    cursor: grab;
+    z-index: 50;
+    opacity: 0.5;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.resize-handle:hover,
+.resize-handle.active {
+    opacity: 1;
+    background: #00eab8;
+}
+
+.resize-handle:active {
+    cursor: grabbing;
+}
+
+.resize-x {
+    top: 50%;
+    right: -10px;
+    width: 20px;
+    height: 60px;
+    transform: translateY(-50%) translateZ(1px);
+    border-radius: 4px;
+    cursor: ew-resize;
+}
+
+.resize-x::after {
+    content: '❯';
+    transform: rotate(90deg);
+}
+
+.resize-y {
+    bottom: -10px;
+    left: 50%;
+    width: 60px;
+    height: 20px;
+    transform: translateX(-50%) translateZ(1px);
+    border-radius: 4px;
+    cursor: ns-resize;
+}
+
+.resize-y::after {
+    content: '❯';
+}
+
 .room-scene {
-    width: 420px;
-    height: 420px;
+    width: calc(var(--floor-width, 420) * 1px);
+    height: calc(var(--floor-depth, 420) * 1px);
     position: relative;
     transform-style: preserve-3d;
     transition: transform 0.5s cubic-bezier(.4, 0, .2, 1);
@@ -628,8 +741,8 @@ main {
     position: absolute;
     left: 0;
     top: 0;
-    width: 420px;
-    height: 160px;
+    width: calc(var(--floor-depth, 420) * 1px);
+    height: 240px;
     background: linear-gradient(180deg, #e2e8f0 0%, #f1f5f9 100%);
     border: 1.5px solid #cbd5e1;
     transform-origin: top left;
@@ -640,8 +753,8 @@ main {
     position: absolute;
     left: 0;
     top: 0;
-    width: 420px;
-    height: 160px;
+    width: calc(var(--floor-width, 420) * 1px);
+    height: 240px;
     background: linear-gradient(180deg, #e2e8f0 0%, #f1f5f9 100%);
     border: 1.5px solid #cbd5e1;
     transform-origin: top left;
@@ -952,7 +1065,7 @@ main {
     position: absolute;
     left: 10px;
     top: -50px;
-    transform: translateZ(100px) rotateX(-60deg) rotateZ(-45deg);
+    transform: translateZ(100px) rotateZ(calc(var(--rot-z, 45deg) * -1)) rotateX(calc(var(--rot-x, 60deg) * -1));
     background: #ffffff;
     padding: 6px 12px;
     border-radius: 6px;
@@ -963,7 +1076,7 @@ main {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.2s;
     z-index: 30;
     white-space: nowrap;
 }
@@ -971,7 +1084,7 @@ main {
 .device-node:hover .device-label,
 .device-node.selected .device-label {
     opacity: 1;
-    transform: translateZ(120px) rotateX(-60deg) rotateZ(-45deg);
+    transform: translateZ(120px) rotateZ(calc(var(--rot-z, 45deg) * -1)) rotateX(calc(var(--rot-x, 60deg) * -1));
 }
 
 .device-node.selected .device-label {
@@ -1303,6 +1416,49 @@ textarea.form-control {
     color: var(--color-text-primary);
 }
 
+/* Action Control Group */
+.device-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.action-btn i {
+    font-size: 1.1rem;
+}
+
+.action-btn:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-accent);
+    border-color: rgba(0, 212, 170, 0.3);
+}
+
+.action-btn.danger {
+    color: #ef4444;
+}
+
+.action-btn.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
 /* Responsive Base */
 @media (max-width: 992px) {
     .dashboard-layout {
@@ -1377,4 +1533,98 @@ textarea.form-control {
     .footer-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* ===== ROOM DECORATIONS ===== */
+.room-deco {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-style: preserve-3d;
+    pointer-events: none;
+}
+
+/* Decorations Textures */
+.deco-sofa .face {
+    background: #334155;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.deco-table .face {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.deco-table .face-top {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
+}
+
+.deco-window .face {
+    background: rgba(56, 189, 248, 0.2);
+    border: 2px solid #0f172a;
+    backdrop-filter: blur(2px);
+}
+
+.deco-door .face {
+    background: #475569;
+    border: 1px solid #1e293b;
+}
+
+.deco-rug .face {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.deco-rug .face-top {
+    background: #475569;
+}
+
+.deco-counter .face {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+.deco-counter .face-top {
+    background: #cbd5e1;
+}
+
+/* Marble top */
+.deco-cabinet .face {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.deco-bed .face {
+    background: #475569;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.deco-bed .face-top {
+    background: #f8fafc;
+}
+
+/* White mattress */
+.deco-headboard .face {
+    background: #1e293b;
+}
+
+.deco-nightstand .face {
+    background: #0f172a;
+    border-color: #334155;
+}
+
+.deco-wardrobe .face {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.deco-chair .face {
+    background: #b45309;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.deco-bookshelf .face {
+    background: #1e293b;
+    border-color: #334155;
 }

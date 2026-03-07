@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function applyScene() {
         roomSceneEl.style.transform = `rotateX(${rotX}deg) rotateZ(${rotZ}deg) scale3d(${zoom},${zoom},${zoom})`;
+        roomSceneEl.style.setProperty('--rot-x', `${rotX}deg`);
+        roomSceneEl.style.setProperty('--rot-z', `${rotZ}deg`);
     }
 
     function setupLongPress(id, action) {
@@ -48,6 +50,133 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupLongPress('btn-zoom-in', () => { zoom = Math.min(zoom + 0.04, 1.8); applyScene(); });
     setupLongPress('btn-zoom-out', () => { zoom = Math.max(zoom - 0.04, 0.4); applyScene(); });
     applyScene();
+
+    // ===== Mouse Drag Rotation =====
+    const roomContainer = document.querySelector('.room-view-container');
+    let isDragging = false;
+    let startX = 0;
+
+    roomContainer.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.device-node') || e.target.closest('.scene-controls') || e.target.closest('#dh-panel')) return;
+        isDragging = true;
+        startX = e.clientX;
+        roomContainer.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        rotZ += dx * 0.4;
+        startX = e.clientX;
+        applyScene();
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            roomContainer.style.cursor = 'grab';
+        }
+    });
+    roomContainer.style.cursor = 'grab';
+
+    // ===== 2D to 3D Projection Math =====
+    // Solves the inverse matrix of rotateX(rotX) rotateZ(rotZ) scale3d(zoom)
+    function getFloorDelta(dx, dy) {
+        const radZ = rotZ * Math.PI / 180;
+        const radX = rotX * Math.PI / 180;
+        const cZ = Math.cos(radZ), sZ = Math.sin(radZ), cX = Math.cos(radX);
+        // Protect against divide by zero if looking exactly top-down
+        const cX_safe = Math.max(0.01, Math.abs(cX)) * Math.sign(cX || 1);
+
+        const localX = (dx * cZ + dy * sZ / cX_safe) / zoom;
+        const localY = (-dx * sZ + dy * cZ / cX_safe) / zoom;
+        return { x: localX, y: localY };
+    }
+
+    // ===== Floor Resizing & Dragging Logic =====
+    let resizeMode = null; // 'x' or 'y'
+    let startFloorW = 0, startFloorD = 0;
+    let draggingDeviceId = null;
+    let initialPosX = 0, initialPosY = 0;
+
+    document.addEventListener('mousedown', (e) => {
+        if (e.target.closest('#resize-x')) resizeMode = 'x';
+        else if (e.target.closest('#resize-y')) resizeMode = 'y';
+        else return;
+
+        const room = house.rooms.find(r => r.id === currentRoomId);
+        startFloorW = room.floorWidth || 420;
+        startFloorD = room.floorDepth || 420;
+        startX = e.clientX;
+        startY = e.clientY;
+        document.body.style.cursor = resizeMode === 'x' ? 'ew-resize' : 'ns-resize';
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    let startY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        if (resizeMode) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            const localDelta = getFloorDelta(dx, dy);
+            const room = house.rooms.find(r => r.id === currentRoomId);
+
+            let minW = 200, minD = 200;
+            room.devices.forEach(d => {
+                const p = d.pos;
+                minW = Math.max(minW, (p.x || 0) + 100);
+                minD = Math.max(minD, (p.y || 0) + 100);
+            });
+
+            if (resizeMode === 'x') {
+                room.floorWidth = Math.max(minW, startFloorW + localDelta.x);
+            } else {
+                room.floorDepth = Math.max(minD, startFloorD + localDelta.y);
+            }
+
+            applyScene();
+            roomSceneEl.style.setProperty('--floor-width', room.floorWidth);
+            roomSceneEl.style.setProperty('--floor-depth', room.floorDepth);
+            return;
+        }
+
+        if (draggingDeviceId) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            const localDelta = getFloorDelta(dx, dy);
+            const room = house.rooms.find(r => r.id === currentRoomId);
+            const d = room.devices.find(dev => dev.id === draggingDeviceId);
+
+            // Constrain device strictly inside the floor bounds
+            let newX = initialPosX + localDelta.x;
+            let newY = initialPosY + localDelta.y;
+            newX = Math.max(0, Math.min(newX, (room.floorWidth || 420) - 60));
+            newY = Math.max(0, Math.min(newY, (room.floorDepth || 420) - 60));
+
+            d.pos.x = newX;
+            d.pos.y = newY;
+
+            const node = document.querySelector(`.device-node[data-id="${draggingDeviceId}"]`);
+            if (node) {
+                node.style.setProperty('--x', newX);
+                node.style.setProperty('--y', newY);
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (resizeMode) {
+            resizeMode = null;
+            document.body.style.cursor = '';
+            renderRoomView();
+        }
+        if (draggingDeviceId) {
+            draggingDeviceId = null;
+            document.body.style.cursor = '';
+        }
+    });
 
     // ===== Device Positions =====
     const posMap = {
@@ -76,6 +205,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>`;
     }
 
+    function deco(x, y, z, cw, cd, ch, cls) {
+        return `<div class="room-deco" style="transform:translate3d(${x}px, ${y}px, ${z}px);">
+            ${cube(cw, cd, ch, cls)}
+        </div>`;
+    }
+
+    function renderDecorations(roomId) {
+        let decs = '';
+        if (roomId === 'living-room') {
+            decs += deco(100, 150, 0, 120, 60, 30, 'deco-sofa');
+            decs += deco(120, 220, 0, 80, 40, 15, 'deco-table');
+            decs += deco(280, 0, 40, 80, 8, 100, 'deco-window');
+            decs += deco(0, 100, 0, 8, 80, 150, 'deco-door');
+            decs += deco(80, 130, 0, 160, 160, 2, 'deco-rug');
+        } else if (roomId === 'kitchen') {
+            decs += deco(150, 100, 0, 200, 60, 45, 'deco-counter');
+            decs += deco(0, 150, 0, 60, 200, 45, 'deco-counter');
+            decs += deco(0, 250, 0, 8, 80, 150, 'deco-door');
+            decs += deco(180, 100, 120, 140, 30, 60, 'deco-cabinet');
+        } else if (roomId === 'bedroom-master') {
+            decs += deco(100, 0, 0, 140, 180, 25, 'deco-bed');
+            decs += deco(120, 0, 25, 100, 10, 40, 'deco-headboard');
+            decs += deco(50, 0, 0, 40, 40, 30, 'deco-nightstand');
+            decs += deco(250, 0, 0, 40, 40, 30, 'deco-nightstand');
+            decs += deco(380, 200, 0, 20, 150, 180, 'deco-wardrobe');
+            decs += deco(0, 100, 0, 8, 80, 150, 'deco-door');
+            decs += deco(200, 392, 40, 100, 8, 100, 'deco-window');
+        } else if (roomId === 'studio-living') {
+            decs += deco(100, 150, 0, 120, 60, 30, 'deco-sofa');
+            decs += deco(0, 0, 40, 8, 150, 120, 'deco-window');
+        } else if (roomId === 'den') {
+            decs += deco(150, 150, 0, 80, 80, 40, 'deco-chair');
+            decs += deco(280, 0, 0, 100, 40, 120, 'deco-bookshelf');
+        }
+        return decs;
+    }
+
     function renderRoomsSidebar() {
         roomListEl.innerHTML = house.rooms.map(r => `
             <li class="room-item ${r.id === currentRoomId ? 'active' : ''}" data-id="${r.id}">
@@ -96,15 +262,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderRoomView() {
         const room = house.rooms.find(r => r.id === currentRoomId);
         if (!room) return;
+
+        room.floorWidth = room.floorWidth || 420;
+        room.floorDepth = room.floorDepth || 420;
+        roomSceneEl.style.setProperty('--floor-width', room.floorWidth);
+        roomSceneEl.style.setProperty('--floor-depth', room.floorDepth);
+
         roomFloorEl.className = 'room-floor';
         let html = '<div class="room-wall-left"></div><div class="room-wall-back"></div>';
+        html += '<div class="resize-handle resize-x" id="resize-x" title="Drag to resize floor width"></div>';
+        html += '<div class="resize-handle resize-y" id="resize-y" title="Drag to resize floor depth"></div>';
+        html += renderDecorations(currentRoomId);
 
         const typeCount = {};
         room.devices.forEach((d, idx) => {
             typeCount[d.type] = (typeCount[d.type] || 0);
-            const p = getPos(currentRoomId, d.type, idx);
-            const off = typeCount[d.type] * 50;
-            const x = p.x + off, y = p.y + off;
+
+            // Generate or fetch permanent position
+            if (!d.pos) {
+                const p = getPos(currentRoomId, d.type, idx);
+                const off = typeCount[d.type] * 50;
+                d.pos = { x: p.x + off, y: p.y + off };
+            }
+
+            const x = d.pos.x, y = d.pos.y;
             typeCount[d.type]++;
             const isOn = d.status === 'on';
             const sel = d.id === selectedDeviceId ? 'selected' : '';
@@ -141,8 +322,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             html += `<div class="device-node device-${d.type === 'light' ? 'lamp' : d.type} ${isOn ? 'on' : 'off'} ${sel}"
-                data-id="${d.id}" style="--x:${x};--y:${y};">
-                ${inner}
+                data-id="${d.id}" style="--x:${x};--y:${y}; --r:${d.rot || 0};">
+                <div class="device-rotator" style="transform: rotateZ(calc(var(--r, 0) * 1deg)); transform-style: preserve-3d;">
+                    ${inner}
+                </div>
                 <div class="device-label">${d.name}</div>
             </div>`;
         });
@@ -150,13 +333,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         roomFloorEl.innerHTML = html;
 
         roomFloorEl.querySelectorAll('.device-node[data-id]').forEach(node => {
-            node.addEventListener('click', (e) => {
-                e.stopPropagation();
+            node.addEventListener('mousedown', (e) => {
+                e.stopPropagation(); // Stop scene rotation processing
+                e.preventDefault(); // Stop text selection
+
                 selectedDeviceId = node.dataset.id;
                 roomFloorEl.querySelectorAll('.device-node').forEach(n => n.classList.remove('selected'));
                 node.classList.add('selected');
                 updatePanel(room.devices.find(d => d.id === selectedDeviceId));
+
+                // Start Drag
+                draggingDeviceId = selectedDeviceId;
+                const dev = room.devices.find(d => d.id === selectedDeviceId);
+                initialPosX = dev.pos.x;
+                initialPosY = dev.pos.y;
+                startX = e.clientX;
+                startY = e.clientY;
+                document.body.style.cursor = 'move';
             });
+            node.addEventListener('click', (e) => { e.stopPropagation(); });
         });
         roomFloorEl.addEventListener('click', () => {
             selectedDeviceId = null;
@@ -164,6 +359,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             updatePanel(null);
         });
     }
+
+    // ===== Device Spawner Toolbar =====
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    document.querySelectorAll('.tool-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.dataset.type;
+            const room = house.rooms.find(r => r.id === currentRoomId);
+            if (!room) return;
+
+            const newDev = {
+                id: 'custom-' + Date.now(),
+                name: 'New ' + capitalize(type === 'light' ? 'lamp' : type),
+                type: type,
+                status: 'off',
+                pos: { x: (room.floorWidth || 420) / 2 - 20, y: (room.floorDepth || 420) / 2 - 20 }
+            };
+            if (type === 'ac') { newDev.value = 24; newDev.metric = '°C'; }
+            if (type === 'tv' || type === 'speaker') { newDev.value = 50; newDev.metric = '%'; }
+
+            room.devices.push(newDev);
+            selectedDeviceId = newDev.id;
+            renderRoomView();
+            updatePanel(newDev);
+        });
+    });
 
     function updatePanel(device) {
         if (!device) { panelEmpty.style.display = 'flex'; panelContent.style.display = 'none'; return; }
@@ -202,6 +423,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!selectedDeviceId) return;
         const u = SmartHome.updateDeviceValue(houseId, currentRoomId, selectedDeviceId, parseInt(e.target.value));
         if (u) { renderRoomView(); updatePanel(u); }
+    });
+
+    // ===== Action Buttons (Rotate & Delete) =====
+    document.getElementById('btn-device-rotate').addEventListener('click', () => {
+        if (!selectedDeviceId) return;
+        const room = house.rooms.find(r => r.id === currentRoomId);
+        const d = room.devices.find(dev => dev.id === selectedDeviceId);
+        d.rot = ((d.rot || 0) + 90) % 360;
+
+        const node = document.querySelector(`.device-node[data-id="${selectedDeviceId}"]`);
+        if (node) node.style.setProperty('--r', d.rot);
+    });
+
+    document.getElementById('btn-device-delete').addEventListener('click', () => {
+        if (!selectedDeviceId) return;
+
+        const room = house.rooms.find(r => r.id === currentRoomId);
+        room.devices = room.devices.filter(dev => dev.id !== selectedDeviceId);
+        selectedDeviceId = null;
+        renderRoomView();
+        updatePanel(null);
     });
 
     renderRoomsSidebar();
